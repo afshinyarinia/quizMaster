@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('answer');
             $table->boolean('is_correct');
             $table->timestamps();
+            $table->index(['game_round_id', 'user_id']);
+
         });
     }
 

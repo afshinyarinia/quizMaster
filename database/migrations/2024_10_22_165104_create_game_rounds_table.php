@@ -19,6 +19,8 @@ return new class extends Migration
             $table->timestamp('start_time');
             $table->timestamp('end_time')->nullable();
             $table->timestamps();
+            $table->index(['lobby_id', 'round_number']);
+
         });
     }
 
