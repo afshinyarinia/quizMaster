@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\GameRound;
+use App\Models\Question;
 use App\Models\User;
 use App\Models\Lobby;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -45,4 +47,57 @@ it('can start a lobby', function () {
         ->postJson("/api/lobbies/{$lobby->id}/start");
 
     $response->assertStatus(200);
+});
+
+it('can get the current question', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('auth_token')->plainTextToken;
+    $lobby = Lobby::factory()->create();
+    $question = Question::factory()->create();
+    GameRound::factory()->create([
+        'lobby_id' => $lobby->id,
+        'question_id' => $question->id,
+    ]);
+
+    $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        ->getJson("/api/lobbies/{$lobby->id}/question");
+
+    $response->assertStatus(200)
+        ->assertJsonStructure(['question', 'time_limit', 'round_number']);
+});
+
+it('can submit an answer', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('auth_token')->plainTextToken;
+    $lobby = Lobby::factory()->create();
+    $question = Question::factory()->create();
+    GameRound::factory()->create([
+        'lobby_id' => $lobby->id,
+        'question_id' => $question->id,
+    ]);
+
+    $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        ->postJson("/api/lobbies/{$lobby->id}/answer", [
+            'answer' => 'Test Answer',
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson(['message' => 'Answer submitted successfully']);
+});
+
+it('can get the game state', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('auth_token')->plainTextToken;
+    $lobby = Lobby::factory()->create();
+    $question = Question::factory()->create();
+    GameRound::factory()->create([
+        'lobby_id' => $lobby->id,
+        'question_id' => $question->id,
+    ]);
+
+    $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        ->getJson("/api/lobbies/{$lobby->id}/state");
+
+    $response->assertStatus(200)
+        ->assertJsonStructure(['status', 'active_players', 'current_round']);
 });

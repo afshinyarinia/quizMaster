@@ -117,7 +117,7 @@ class GameService
             return [
                 'status' => $lobby->status,
                 'active_players' => $activePlayers,
-                'current_round' => $currentRound ? $currentRound->round_number : null,
+                'current_round' => $currentRound->round_number ?? null,
             ];
         });
     }

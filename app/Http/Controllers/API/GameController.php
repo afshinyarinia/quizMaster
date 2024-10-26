@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Lobby;
 use App\Services\GameService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
@@ -16,7 +17,7 @@ class GameController extends Controller
         $this->gameService = $gameService;
     }
 
-    public function getCurrentQuestion(Lobby $lobby)
+    public function getCurrentQuestion(Lobby $lobby): JsonResponse
     {
         $currentRound = $lobby->gameRounds()->latest()->first();
 
@@ -31,7 +32,7 @@ class GameController extends Controller
         ]);
     }
 
-    public function submitAnswer(Request $request, Lobby $lobby)
+    public function submitAnswer(Request $request, Lobby $lobby): JsonResponse
     {
         $validatedData = $request->validate([
             'answer' => 'required|string',
@@ -48,7 +49,7 @@ class GameController extends Controller
         return response()->json(['message' => 'Answer submitted successfully']);
     }
 
-    public function getGameState(Lobby $lobby)
+    public function getGameState(Lobby $lobby): JsonResponse
     {
         $activePlayers = $lobby->users()->wherePivot('is_active', true)->count();
         $currentRound = $lobby->gameRounds()->latest()->first();
@@ -56,7 +57,7 @@ class GameController extends Controller
         return response()->json([
             'status' => $lobby->status,
             'active_players' => $activePlayers,
-            'current_round' => $currentRound ? $currentRound->round_number : null,
+            'current_round' => $currentRound->round_number ?? null,
         ]);
     }
 }
